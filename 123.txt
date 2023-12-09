@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# Sprawdzenie czy podano odpowiednią liczbę argumentów
+if [ $# -ne 3 ]; then
+    echo "Użycie: $0 nazwa_pliku zakres_min zakres_max"
+    exit 1
+fi
+
+plik=$1
+zakres_min=$2
+zakres_max=$3
+suma=0
+
+# Sprawdzenie czy plik istnieje
+if [ ! -f "$plik" ]; then
+    echo "Plik $plik nie istnieje."
+    exit 1
+fi
+
+while read -r line; do
+    liczby_w_linii=$(echo "$line" | tr -s ',' ' ' | wc -w)
+    if [ "$liczby_w_linii" -ge 5 ]; then
+        druga_liczba=$(echo "$line" | cut -d',' -f2)
+        czwarta_liczba=$(echo "$line" | cut -d',' -f4)
+        if (( $(echo "$druga_liczba >= $zakres_min && $druga_liczba <= $zakres_max" | bc -l) )); then
+            echo "$lp: $czwarta_liczba"
+            suma=$((suma + druga_liczba))
+        fi
+    fi
+    lp=$((lp + 1))
+done < "$plik"
+
+echo "Suma: $suma"

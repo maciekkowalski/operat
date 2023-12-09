@@ -1,0 +1,39 @@
+#!/bin/bash
+
+# Sprawdzenie czy podano nazwę pliku jako argument
+if [ $# -eq 0 ]; then
+    echo "Podaj nazwę pliku z danymi jako argument."
+    exit 1
+fi
+
+# Odczytanie danych z pliku
+while IFS= read -r line || [ -n "$line" ]; do
+    # Rozdzielenie linii po średnikach i spacjach
+    IFS=';' read -r -a student <<< "$line"
+    
+    # Wyodrębnienie imienia i nazwiska
+    name="${student[0]}"
+    
+    # Sprawdzenie liczby ocen i obliczenie sumy
+    count=0
+    sum=0
+    blanks=0
+    for score in "${student[@]:1}"; do
+        if [[ -n $score ]]; then
+            ((count++))
+            ((sum += score))
+        else
+            ((blanks++))
+        fi
+    done
+    
+    # Wyświetlenie informacji o studencie
+    echo -n "${name//;/ } "
+    echo "liczba ocen = $count, suma ocen = $sum, liczba braków = $blanks"
+    
+    # Sprawdzenie warunku poprawy
+    if [[ $count -gt 2 && $count -gt $blanks ]]; then
+        echo "   poprawa - liczba braków = 4"
+    fi
+
+done < "$1"
